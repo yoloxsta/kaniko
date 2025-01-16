@@ -16,10 +16,12 @@ spec:
     spec:
       containers:
       - name: sta-container
-        image: yolomurphy/test:latest  # Replace 'latest' with the appropriate tag
+        image: yolomurphy/test:latest
+        imagePullPolicy: Always  # Replace 'latest' with the appropriate tag
         ports:
-        - containerPort: 80  # Update to match your app's container port
-
+        - containerPort: 80
+      imagePullSecrets:
+      - name: regcredsta
 ---
 apiVersion: v1
 kind: Service
