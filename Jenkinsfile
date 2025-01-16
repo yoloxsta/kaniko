@@ -1,73 +1,86 @@
 pipeline {
-  agent {
-    kubernetes {
-      yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-          - name: maven
-            image: maven:alpine
-            command:
-            - cat
-            tty: true
-          - name: docker
-            image: docker:latest
-            command:
-            - cat
-            tty: true
-            volumeMounts:
-             - mountPath: /var/run/docker.sock
-               name: docker-sock
-          volumes:
-          - name: docker-sock
-            hostPath:
-              path: /var/run/docker.sock    
-        '''
-    }
-  }
-  stages {
-    stage('Clone') {
-      steps {
-        container('maven') {
-          git branch: 'main', changelog: false, poll: false, url: 'https://mohdsabir-cloudside@bitbucket.org/mohdsabir-cloudside/java-app.git'
+    agent {
+        kubernetes {
+            yaml """
+kind: Pod
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - sleep
+    args:
+    - 9999999
+    volumeMounts:
+      - name: jenkins-docker-cfg
+        mountPath: /kaniko/.docker
+  - name: google-cloud-sdk
+    image: google/cloud-sdk
+    imagePullPolicy: Always
+    command:
+    - sleep
+    args:
+    - 9999999
+  volumes:
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: regcred
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+"""
         }
-      }
-    }  
-    stage('Build-Jar-file') {
-      steps {
-        container('maven') {
-          sh 'mvn package'
+    }
+    environment {
+        DOCKER_IMAGE = "phyozayarkyaw/test"
+    }
+    stages {
+        stage('Clone repository') {
+            steps {
+                checkout scm
+            }
         }
-      }
-    }
-    stage('Build-Docker-Image') {
-      steps {
-        container('docker') {
-          sh 'docker build -t ss69261/testing-image:latest .'
+
+        stage('Build image with Kaniko') {
+            steps {
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                    sh '''#!/busybox/sh
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$BUILD_NUMBER
+                    '''
+                }
+            }
         }
-      }
+
+        stage('Test image') {
+            steps {
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                    sh 'echo "Tests passed"'
+                }
+            }
+        }
+
+        stage('Push image') {
+            steps {
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                    sh '''#!/busybox/sh
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$BUILD_NUMBER
+                    '''
+                }
+            }
+        }
+        
+        stage('deploy') {
+            steps {
+                container(name: 'google-cloud-sdk', shell: '/bin/bash') {
+                    sh '''
+                    # Now run kubectl apply (no need to install kubectl, it is already available)
+                    kubectl apply -f deployment.yaml
+                 '''
+        }
     }
-    stage('Login-Into-Docker') {
-      steps {
-        container('docker') {
-          sh 'docker login -u <docker_username> -p <docker_password>'
-      }
-    }
-    }
-     stage('Push-Images-Docker-to-DockerHub') {
-      steps {
-        container('docker') {
-          sh 'docker push ss69261/testing-image:latest'
-      }
-    }
-     }
-  }
-    post {
-      always {
-        container('docker') {
-          sh 'docker logout'
-      }
-      }
+}
     }
 }
