@@ -35,7 +35,7 @@ spec:
         }
     }
     environment {
-        DOCKER_IMAGE = "phyozayarkyaw/test"
+        DOCKER_IMAGE = "yolomurphy/test"
     }
     stages {
         stage('Clone repository') {
