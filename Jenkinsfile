@@ -78,7 +78,6 @@ spec:
                     sh '''
                     # Now run kubectl apply (no need to install kubectl, it is already available)
                     kubectl apply -f deployment.yaml
-                    kubectl apply -f ingress.yaml
                  '''
         }
     }
