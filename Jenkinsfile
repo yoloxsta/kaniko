@@ -36,8 +36,6 @@ spec:
     }
     environment {
         DOCKER_IMAGE = "yolomurphy/test"
-        BUILD_TAG = "${DOCKER_IMAGE}:${BUILD_NUMBER}"
-        LATEST_TAG = "${DOCKER_IMAGE}:latest"
     }
     stages {
         stage('Clone repository') {
@@ -50,7 +48,7 @@ spec:
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     sh '''#!/busybox/sh
-                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $BUILD_TAG --destination $LATEST_TAG
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:latest
                     '''
                 }
             }
@@ -68,7 +66,7 @@ spec:
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     sh '''#!/busybox/sh
-                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $BUILD_TAG --destination $LATEST_TAG
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:latest
                     '''
                 }
             }
@@ -80,10 +78,6 @@ spec:
                     sh '''
                     # Now run kubectl apply (no need to install kubectl, it is already available)
                     kubectl apply -f deployment.yaml
-
-                    echo "Restarting Deployment to Pull Latest Image"
-                    kubectl rollout restart deployment/sta-deployment
-                    kubectl rollout status deployment/sta-deployment
                  '''
         }
     }
