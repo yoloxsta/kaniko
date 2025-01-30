@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: sta-container
-        image: yolomurphy/test:${IMAGE_TAG}
+        image: yolomurphy/test:latest
         imagePullPolicy: Always 
         ports:
         - containerPort: 80

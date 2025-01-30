@@ -49,7 +49,7 @@ spec:
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     sh '''#!/busybox/sh
-                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$IMAGE_TAG
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$IMAGE_TAG --destination $DOCKER_IMAGE:latest
                     '''
                 }
             }
@@ -67,7 +67,7 @@ spec:
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     sh '''#!/busybox/sh
-                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$IMAGE_TAG
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$IMAGE_TAG --destination $DOCKER_IMAGE:latest
                     '''
                 }
             }
@@ -78,6 +78,7 @@ spec:
                 container(name: 'google-cloud-sdk', shell: '/bin/bash') {
                     sh '''
                     # Now run kubectl apply (no need to install kubectl, it is already available)
+                    sed -i 's|image: yolomurphy/test:.*|image: yolomurphy/test:'"$IMAGE_TAG"'|g' deployment.yaml
                     kubectl apply -f deployment.yaml
                  '''
         }
