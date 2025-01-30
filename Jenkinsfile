@@ -36,6 +36,7 @@ spec:
     }
     environment {
         DOCKER_IMAGE = "yolomurphy/test"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
     stages {
         stage('Clone repository') {
@@ -48,7 +49,7 @@ spec:
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     sh '''#!/busybox/sh
-                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:latest
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$IMAGE_TAG
                     '''
                 }
             }
@@ -66,7 +67,7 @@ spec:
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     sh '''#!/busybox/sh
-                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:latest
+                        /kaniko/executor --context `pwd` --dockerfile Dockerfile --destination $DOCKER_IMAGE:$IMAGE_TAG
                     '''
                 }
             }
