@@ -12,3 +12,6 @@ kubectl rollout history deployment sta-deployment -n jenkins
 kubectl rollout undo deployment sta-deployment --to-revision=no: -n jenkins
 
 ```
+
+Nginx zero to hero ==> https://medium.com/@ksaquib/nginx-zero-to-hero-your-ultimate-guide-from-beginner-to-advanced-mastery-57e2dad6a77a
+
