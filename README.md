@@ -18,3 +18,6 @@ cp /home/name/xyz/02backend/xyz/aia-as.yml /home/name/xyz/wxyz/jenkins/sta/aia-a
 
 Nginx zero to hero ==> https://medium.com/@ksaquib/nginx-zero-to-hero-your-ultimate-guide-from-beginner-to-advanced-mastery-57e2dad6a77a
 
+postgresql ==> https://phoenixnap.com/kb/postgresql-kubernetes
+
+ 
