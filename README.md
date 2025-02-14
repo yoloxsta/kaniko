@@ -20,4 +20,78 @@ Nginx zero to hero ==> https://medium.com/@ksaquib/nginx-zero-to-hero-your-ultim
 
 postgresql ==> https://phoenixnap.com/kb/postgresql-kubernetes
 
- 
+#
+##configmaps
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: webapp-color
+  name: webapp-color
+  namespace: default
+spec:
+  containers:
+  - env:
+    - name: APP_COLOR
+      value: blue
+    image: kodekloud/webapp-color
+    name: webapp-color
+#################
+
+kind: ConfigMap
+metadata:
+  name: webapp-config-map
+data:
+  APP_COLOR: darkblue
+  APP_OTHER: disregard
+
+#####################
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: webapp-color
+  name: webapp-color
+  namespace: default
+spec:
+  containers:
+  - env:
+    - name: APP_COLOR
+      valueFrom:
+       configMapKeyRef:
+         name: webapp-config-map
+         key: APP_COLOR
+    image: kodekloud/webapp-color
+    name: webapp-color
+
+##########################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-color
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp-color
+  template:
+    metadata:
+      labels:
+        app: webapp-color
+    spec:
+      containers:
+      - name: webapp-color
+        image: kodekloud/webapp-color
+        env:
+        - name: APP_COLOR
+          value: blue
+
+kubectl set env deployment/webapp-color APP_COLOR=green
+kubectl rollout restart deployment webapp-color
+
+
+
+```
